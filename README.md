@@ -11,7 +11,7 @@ The results of different functions of the CityATB can also be stored into TXTs, 
 
 
 
-This GitLab page will be used to further develop the package and make it available under the [MIT License](https://gitlab.e3d.rwth-aachen.de/malhotra/cityatb_qtversion/-/blob/for_new_git/License/LICENSE).
+This GitLab page will be used to further develop the package and make it available under the [MIT License](https://gitlab.e3d.rwth-aachen.de/e3d-software-tools/cityatb/cityatb/-/blob/master/License/LICENSE).
 
 If you have any questions regarding CityATB feel free to contact us at: [cityatb@e3d.rwth-aachen.de](mailto:cityatb@e3d.rwth-aachen.de)
 
@@ -60,4 +60,4 @@ CityATB (CGML ATB) : CityGML Analysis Toolbox for Energy Performance Simulations
 
 ## License
 
-CityATB is released by RWTH Aachen University, E3D - Institute of Energy Efficiency and Sustainable Building, under the [MIT License](https://gitlab.e3d.rwth-aachen.de/malhotra/cityatb_qtversion/-/blob/for_new_git/License/LICENSE).
+CityATB is released by RWTH Aachen University, E3D - Institute of Energy Efficiency and Sustainable Building, under the [MIT License](https://gitlab.e3d.rwth-aachen.de/e3d-software-tools/cityatb/cityatb/-/blob/master/License/LICENSE).
