@@ -667,7 +667,7 @@ def search_for_coordinates(searched_E, namespace, se_min, se_max, building_E=Non
             se_min, se_max = new_min_max(min_max_list, se_min, se_max)
 
         else:           # case hamburg lod2 2020
-            pos_Es = groundSurface_E.find('.//gml:pos', namespace)
+            pos_Es = groundSurface_E.findall('.//gml:pos', namespace)
             polygon = []
             for pos_E in pos_Es:
                 polygon.append(pos_E.text)
