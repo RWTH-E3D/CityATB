@@ -4,7 +4,7 @@
 
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
 
-The CityGML Analysis Toolbox (CityATB) is developed by members of the  "Institute of Energy Efficiency and Sustainable Building (e3D), RWTH Aachen University" using Python 3.5.
+The CityGML Analysis Toolbox (CityATB) is developed by members of the  "Institute of Energy Efficiency and Sustainable Building (e3D), RWTH Aachen University" using Python 3.5+.
 This tool can be used for the analysis of CityGML datasets and searching of building(s) and city quarters using user defined coordinates and attributes.
 The CityATB also allows the users to validate datasets according to the predefined and also the user defined CityGML XML Schema Definiton (XSD) schema(s). 
 The results of different functions of the CityATB can also be stored into TXTs, CSVs, XMLs and JSONs.
@@ -38,7 +38,7 @@ The CityATB is currently being developed. Currently the CityATB is available in 
 
 ### Dependencies
 
-CityATB is currently being developed using Python 3.5 and PyQT python bindings. However in future, the developers will make it usable with other versions of python 3. 
+CityATB is currently being developed using Python 3.5+ and PyQT python bindings. However in future, the developers will make it usable with other versions of python 3. 
 Futhermore, the following external libraries/python packages are used in the different functionalities of CityATB:
 1. matplotlib
 2. numpy

@@ -66,7 +66,7 @@ def progress(self, max):
 
 
 def start_validation(self, xsd, button, buttonText, gmlpath, dirpath, app, validata, xsd_help, validationFilenames):
-    """intizializing analysis"""
+    """intizializing validation"""
     if self.running == False:
         self.running = True                                                                         # updating flag
         names = []                                                                                  # for displaying schema names in window title
@@ -175,11 +175,9 @@ def display(self, validata):
     self.table.insertRow(rowPosition)
     for i in range(3):
         if i <= 1:
-            print(os.path.basename(validata[rowPosition] [i]))
             newitem = QtGui.QTableWidgetItem(os.path.basename(validata[rowPosition] [i]))
             self.table.setItem(rowPosition, i, newitem)
         else:
-            print(validata[rowPosition] [i])
             newitem = QtGui.QTableWidgetItem(validata[rowPosition] [i])
             self.table.setItem(rowPosition, i, newitem)
             if validata[rowPosition] [i] == 'Valid!':

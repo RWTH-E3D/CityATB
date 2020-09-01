@@ -362,10 +362,10 @@ def search(self, dirpath, inputCoor, outputCoor, scaledCoor, scale, app):
                     QtGui.QMessageBox.information(self, "Error", 'Could not decide for search algorithm')
                 if search_data != []:
                     iCRS = [self.combobox_input.currentText(), inputCoor]
-                    oCRS = [self.combobox_output.currentText(), searchCoor, se_min_max]
+                    oCRS = [self.combobox_output.currentText(), searchCoor]
                     if crs != '':
                         oCRS[0] = crs
-                    search_info = [dirpath, self.textbox_value.text(), iCRS, oCRS, search_data]
+                    search_info = [dirpath, self.textbox_value.text(), iCRS, oCRS, se_min_max, search_data]
                     display(self, search_data)
                     self.btn_file_analysis.setEnabled(True)
                 else:

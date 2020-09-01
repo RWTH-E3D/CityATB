@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-The CityGML Analysis Toolbox (CGML ATB) was developed by members of the  "Institute of Energy Efficiency and Sustainable Building (e3D), RWTH Aachen University" using Python 3.5.
+The CityGML Analysis Toolbox (CGML ATB) was developed by members of the  "Institute of Energy Efficiency and Sustainable Building (e3D), RWTH Aachen University" using Python 3.5+.
 This tool can be used for the analysis of CityGML datasets and searching of building(s) and city quarters using user defined coordinates and attributes. 
 The CityATB also allows the users to validate datasets according to the predefined and also the user defined CityGML XML Schema Definiton (XSD) schema(s). 
 The results of different functions of the CityATB can also be stored into TXTs, CSVs, XMLs and JSONs. This Toolbox is available under the MIT License.
@@ -770,7 +770,7 @@ class Save_Results(QtGui.QWidget):
         
         self.lGrid = QtGui.QGridLayout()
         self.gb_format.setLayout(self.lGrid)
-        self.vbox_save_results.addLayout(self.lGrid)
+        # self.vbox_save_results.addLayout(self.lGrid)
 
         
         self.checkbox_text = QtGui.QCheckBox('Text (.txt)', self)

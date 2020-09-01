@@ -97,7 +97,7 @@ def save (self, data, validata, search_info, dirpath):
             if self.checkbox_validation.isChecked() and validata != []:
                 writer(self, validata, nameVali, header.vali, header.valiXml, 'validation', exppath)
             if self.checkbox_search.isChecked() and search_info != []:
-                writer(self, search_info[4], nameSearch, header.search, header.searchXml, 'search', exppath, search_info)
+                writer(self, search_info[5], nameSearch, header.search, header.searchXml, 'search', exppath, search_info)
             if self.checkbox_cgml.isChecked() and search_info != []:
                 cityGML_writer(self, search_info, nameCGML, exppath)
                 pass
@@ -112,9 +112,9 @@ def save (self, data, validata, search_info, dirpath):
 def cityGML_writer(self, search_info, name, exppath):
     """func for writing new CityGML file from list of buildings and files"""
     path = search_info [0]
-    results = search_info[4]
-    mininimum = [str(a) for a in search_info [3] [2] [0]]
-    maximum = [str(a) for a in search_info [3] [2] [1]]
+    results = search_info[5]
+    mininimum = [str(a) for a in search_info [4] [0]]
+    maximum = [str(a) for a in search_info [4] [1]]
     crs = search_info [3] [0]
 
     # warning for files with large area sizes
