@@ -1,17 +1,20 @@
 import os
 import glob
-from PyQt4 import QtGui, QtCore
+from PySide2 import QtWidgets, QtGui
 import zipfile
 import shutil
 import lxml.etree as ET
 import time
+
 import classes as cl
+import gui_functions as gf
 
 
 
 def select_gml(self):
     """func to selecet single .gml or .xml or .zip file"""
-    path = QtGui.QFileDialog.getOpenFileName(self, 'Select file')                                       # starts file selection dialog
+    tup = QtWidgets.QFileDialog.getOpenFileName(self, 'Select file', self.tr("*.gml;*.xml"))            # starts file selection dialog
+    path = tup[0]
     if path.endswith('.gml') or path.endswith('.xml') or path.endswith('.zip'):                         # checks if valid file has been selected
         self.textbox_gml.setText(path)                                                                  # displaying path 
         self.btn_reset.setEnabled(True)
@@ -22,17 +25,16 @@ def select_gml(self):
         
     else:
         self.textbox_gml.setText('')                                                                    # resetting textbox for path
-        self.message_file = QtGui.QMessageBox.information(self, 'Important',
-                                                          'Please select a valid .gml or .xml file')    # message-box informing about unsuccessful selection
+        gf.messageBox(self, 'Important','Please select a valid .gml or .xml file')                      # message-box informing about unsuccessful selection
         return '',''
 
 
 
 def select_folder(self):
     """func to select directory"""
-    path = QtGui.QFileDialog.getExistingDirectory(self, 'Select Directory')                                 # starts directory selection dialog
-    if path:                                                                                                # checks if valid directory has been selected
-        self.textbox_gml_folder.setText(path)                                                               # displaying path
+    path = QtWidgets.QFileDialog.getExistingDirectory(self, 'Select Directory')                         # starts directory selection dialog
+    if path:                                                                                            # checks if valid directory has been selected
+        self.textbox_gml_folder.setText(path)                                                           # displaying path
         self.btn_reset.setEnabled(True)
         self.btn_run_analysis.setEnabled(True)
         self.btn_select_file.setEnabled(False)
@@ -58,12 +60,6 @@ def tableClean(self):
         self.table.removeRow(0) 
     while self.table.columnCount() > 0:                 # deletes columns in table
         self.table.removeColumn(0)
-
-
-
-def message_box(self, title, msg):
-    """displaying pop-up with title and message"""
-    self.message_complete = QtGui.QMessageBox.information(self, title, msg)
 
 
 
@@ -96,7 +92,7 @@ def run_analysis(self, gmlpath, dirpath, pypath, app):
                 try:
                     os.mkdir(gmlpath.replace('.zip',''))                                        # creating new directory, in the same directory as the file, with the same name as the file
                 except:
-                    message_box(self, 'Warning!', 'Error creating directory')
+                    gf.messageBox(self, 'Warning!', 'Error creating directory')
             for number, fileName in enumerate(fileNames):                                       # looping through all .gml and .xml files
                 data.append(analysis(fileName))                                                 # calling analysis function
                 if choice == QtGui.QMessageBox.Yes:                                             # if user wants to keep extracted files
@@ -104,7 +100,7 @@ def run_analysis(self, gmlpath, dirpath, pypath, app):
                         shutil.move(fileName, os.path.join(gmlpath.replace('.zip',''),
                                                            os.path.basename(fileName)))   
                     except:
-                        message_box(self, 'Failed to move', str(fileName))                      # showing error to console
+                        gf.messageBox(self, 'Failed to move', str(fileName))                      # showing error to console
                 progress(self, (number + 1)/len(fileNames)*100)                                 # updating progress bar
             shutil.rmtree(zippath)                                                              # deleting temporary directory
         # folder analysis
@@ -120,10 +116,10 @@ def run_analysis(self, gmlpath, dirpath, pypath, app):
                     print('exit, because of Flag')
                     break                                                                       # breaking out of loop   
         else:
-            message_box(self, 'Warning', "Couldnot find analysable content")
+            gf.messageBox(self, 'Warning', "Couldnot find analysable content")
         # checks if .gml files have been found
         if len(fileNames) > 0:
-            if self.flagStop == False:                                  # calling message_box of successful computation
+            if self.flagStop == False:                                  # calling messageBox of successful computation
                 title = 'Analysis'
                 msg = 'Complete!'
             else:                                                       # signlas if run has been interupted by user
@@ -153,16 +149,17 @@ def display(self, data):
     
     for n in range(c):                                                  # loop for columns
         for m in range(r):                                              # loop for rows
-            newitem = QtGui.QTableWidgetItem(str(data [m] [n]))         # creating widget item
+            newitem = QtWidgets.QTableWidgetItem(str(data [m] [n]))         # creating widget item
             self.table.setItem(m, n, newitem)                           # adding item to table
 
     self.table.setHorizontalHeaderLabels(header.analysisTable)          # arranging headers
     self.table.verticalHeader().hide()
     
     # adjusting size of Table
-    self.table.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
-    for i in range(1, self.table.columnCount()):
-        self.table.horizontalHeader().setResizeMode(i, QtGui.QHeaderView.ResizeToContents)
+    for i in range(0, self.table.columnCount()):
+        self.table.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.ResizeToContents)
+    self.table.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)
+
 
 
 
@@ -279,7 +276,7 @@ def data_transfer(self, data, gmlpath, dirpath, search_info, analyseSearch, vali
             data.append(analysis(os.path.join(dirpath, fileName)))              # running analysis for file and adding it to array
             progress(self, (number + 1) / len(filenames) * 100)                 # updating progess bar
         analyseSearch = False                                                   # updating flag
-        message_box(self, 'Analysis', 'Complete!')
+        gf.messageBox(self, 'Analysis', 'Complete!')
         
     elif analyseValidation:                                                     # checks flag for analysis of validated files
         self.completed = 0                                                      # startvalue for progressbar
@@ -288,7 +285,7 @@ def data_transfer(self, data, gmlpath, dirpath, search_info, analyseSearch, vali
             data.append(analysis(os.path.join(dirpath, fileName)))              # running analysis for file and adding it to array
             progress(self, (number + 1) / len(validationFilenames) * 100)       # updating progress bar
         analyseValidation = False                                               # updating flag
-        message_box(self, 'Analysis', 'Complete!')
+        gf.messageBox(self, 'Analysis', 'Complete!')
         
     elif gmlpath:                                                               # checks for single file path
         self.textbox_gml.setText(gmlpath)                                       # displaying path

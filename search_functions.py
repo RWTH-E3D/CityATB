@@ -1,4 +1,4 @@
-from PyQt4 import QtGui, QtCore
+from PySide2 import QtWidgets, QtGui, QtCore
 import pyproj
 import math
 import time
@@ -9,11 +9,12 @@ import matplotlib.path as mpl
 import numpy as np
 import csv
 
+import gui_functions as gf
  
 
 def select_folder(self):
     """func to select folder"""
-    dirpath = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory")
+    dirpath = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory")
     if dirpath:
         self.textbox_folder.setText(dirpath)
         self.btn_run.setEnabled(True)
@@ -27,13 +28,11 @@ def select_folder(self):
 def displaysetup(self):
     """preparing tbl_coor in gui"""
     self.tbl_coor.setColumnCount(4)
-    self.tbl_coor.setHorizontalHeaderLabels(['Input Longitude', 'Input Latitude', 'Output Longitude', 'Output Latitude', 'scaled Long', 'scaled Lat'])          ### arranging headers
+    self.tbl_coor.setHorizontalHeaderLabels(['Input Longitude', 'Input Latitude', 'Output Longitude', 'Output Latitude', 'scaled Long', 'scaled Lat'])          # arranging headers
     self.tbl_coor.verticalHeader().hide()
     self.tbl_coor.horizontalHeader().hide()
-    self.tbl_coor.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.ResizeToContents)    ### adjusting size of table
-    self.tbl_coor.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.ResizeToContents)    
-    self.tbl_coor.horizontalHeader().setResizeMode(2, QtGui.QHeaderView.Stretch)
-    self.tbl_coor.horizontalHeader().setResizeMode(3, QtGui.QHeaderView.Stretch)
+    stretch_tbl_coor(self)
+
 
 
 
@@ -41,7 +40,7 @@ def del_scale(self):
     """to remove old scaled when removing or adding new oCoor"""
     while self.tbl_coor.columnCount() > 4:
         self.tbl_coor.removeColumn(4)
-    self.tbl_coor.horizontalHeader().setResizeMode(3, QtGui.QHeaderView.Stretch)
+    stretch_tbl_coor(self)
     self.sb_scale.setValue(100)
 
 
@@ -57,17 +56,17 @@ def add_point(self, inputCoor, outputCoor, scaledCoor):
                         Y = float(self.QL_y.text())
                     except:
                         msg = 'Could not convert ' + self.QL_y.text() + ' to float'
-                        self.message_complete = QtGui.QMessageBox.information(self, 'Warning!', msg)
+                        gf.messageBox(self, 'Warning!', msg)
                         return inputCoor, outputCoor, scaledCoor
                 else:
-                    self.message_complete = QtGui.QMessageBox.information(self, 'Warning!', 'Please enter a Latitude')
+                    gf.messageBox(self, 'Warning!', 'Please enter a Latitude')
                     return inputCoor, outputCoor, scaledCoor
             except:
                 msg = 'Could not convert ' + self.QL_x.text() + ' to float'
-                self.message_complete = QtGui.QMessageBox.information(self, 'Warning!', msg)
+                gf.messageBox(self, 'Warning!', msg)
                 return inputCoor, outputCoor, scaledCoor
         else:
-            self.message_complete = QtGui.QMessageBox.information(self, 'Warning!', 'Please enter a Longitude')
+            gf.messageBox(self, 'Warning!', 'Please enter a Longitude')
             return inputCoor, outputCoor, scaledCoor
         if X and Y:
             if (X, Y) not in inputCoor:                                                             # checks if point is already present
@@ -75,12 +74,12 @@ def add_point(self, inputCoor, outputCoor, scaledCoor):
                 output_pr = pyproj.Proj(self.combobox_output.currentText())                         # getting output CRS
                 x, y = pyproj.transform(input_pr,output_pr, X, Y, always_xy = True)                 # transfroming point
                 if x == math.inf or y == math.inf or x == -math.inf or y == -math.inf:              # checking if values are reasonable
-                    self.message_complete = QtGui.QMessageBox.information(self, 'Warning!', 'Could not convert area because of too large values.')
+                    gf.messageBox(self, 'Warning!', 'Could not convert area because of too large values.')
                     return inputCoor, outputCoor, scaledCoor
                 if len(outputCoor) == 2:                        # checks if the first 3 given coordinates create an area - might change to check for min area
                     area = (outputCoor[0][0] * (outputCoor[1][1] - y) + outputCoor[1][0] *(y - outputCoor[0][1]) + x * (outputCoor[0][1] - outputCoor[1][1])) * 0.5
                     if area == 0:
-                        self.message_complete = QtGui.QMessageBox.information(self, 'Warning!', 'Given coordinates do not create an area!')
+                        gf.messageBox(self, 'Warning!', 'Given coordinates do not create an area!')
                         return inputCoor, outputCoor, scaledCoor
                     self.btn_scale.setEnabled(True)
                 inputCoor.append((X, Y))                        # appends coordinates
@@ -95,20 +94,19 @@ def add_point(self, inputCoor, outputCoor, scaledCoor):
                 del_scale(self)
                 return inputCoor, outputCoor, []
             else:
-                QtGui.QMessageBox.information(self, "Important", "This point already exists")
+                gf.messageBox(self, "Important", "This point already exists")
     else:
-        self.message_complete = QtGui.QMessageBox.information(self, 'Warning!', 'Please select input and output CRS!')
+        gf.messageBox(self, 'Warning!', 'Please select input and output CRS!')
     return inputCoor, outputCoor, scaledCoor
 
 
 
 def point_to_table(self, coordinates):
     """adding point to table - coordinates = [x, y, X, Y]"""
-    self.tbl_coor.horizontalHeader().show()
     rowPosition = self.tbl_coor.rowCount()
     self.tbl_coor.insertRow(rowPosition)
     for i in range(4):
-        newitem = QtGui.QTableWidgetItem(str(coordinates[i]))
+        newitem = QtWidgets.QTableWidgetItem(str(coordinates[i]))
         self.tbl_coor.setItem(rowPosition, i, newitem)
     self.tbl_coor.horizontalHeader().show()
 
@@ -291,18 +289,18 @@ def display(self, search_data):
         for j, building in enumerate(buildings):
             if j == 0:
                 self.table.insertRow(m)
-                newitem = QtGui.QTableWidgetItem(str(file))
+                newitem = QtWidgets.QTableWidgetItem(str(file))
                 self.table.setItem(m, 0, newitem)
-                newitem = QtGui.QTableWidgetItem(str(building))
+                newitem = QtWidgets.QTableWidgetItem(str(building))
                 self.table.setItem(m, 1, newitem)
                 m += 1
             else:
                 self.table.insertRow(m)
-                newitem = QtGui.QTableWidgetItem(str(building))
+                newitem = QtWidgets.QTableWidgetItem(str(building))
                 self.table.setItem(m, 1, newitem)
                 m += 1
-    self.table.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)
-    self.table.horizontalHeader().setResizeMode(1, QtGui.QHeaderView.Stretch)
+    self.table.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+    self.table.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
 
 
 
@@ -327,16 +325,16 @@ def search(self, dirpath, inputCoor, outputCoor, scaledCoor, scale, app):
             while self.table.columnCount() > 0:
                 self.table.removeColumn(0) 
             if len(inputCoor) == 2:                                 # checking number of coordinates
-                choice = QtGui.QMessageBox.question(self, 'Attention!', "Not enough Coordinates! Do you want to form a square from the entered ones?",
-                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                if choice == QtGui.QMessageBox.Yes:
+                choice = QtWidgets.QMessageBox.question(self, 'Attention!', "Not enough Coordinates! Do you want to form a square from the entered ones?",
+                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+                if choice == QtWidgets.QMessageBox.Yes:
                     inputCoor, outputCoor = two_p_to_square(self, inputCoor, outputCoor)
                 else:
                     pass
             if 0 < len(outputCoor) < 3:
-                choice = QtGui.QMessageBox.question(self, 'Attention!', "Not enough Coordinates to form a polygon! Continue?",
-                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-                if choice == QtGui.QMessageBox.Yes:
+                choice = QtWidgets.QMessageBox.question(self, 'Attention!', "Not enough Coordinates to form a polygon! Continue?",
+                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+                if choice == QtWidgets.QMessageBox.Yes:
                     pass
                 else:
                     self.running = False
@@ -359,21 +357,21 @@ def search(self, dirpath, inputCoor, outputCoor, scaledCoor, scale, app):
                     search_data, se_min_max, = coordinates(self, fileNames, 1, searchCoor, app)
                     crs = ''
                 else:
-                    QtGui.QMessageBox.information(self, "Error", 'Could not decide for search algorithm')
+                    gf.messageBox(self, "Error", 'Could not decide for search algorithm')
                 if search_data != []:
                     iCRS = [self.combobox_input.currentText(), inputCoor]
-                    oCRS = [self.combobox_output.currentText(), searchCoor, se_min_max]
+                    oCRS = [self.combobox_output.currentText(), searchCoor]
                     if crs != '':
                         oCRS[0] = crs
-                    search_info = [dirpath, self.textbox_value.text(), iCRS, oCRS, search_data]
+                    search_info = [dirpath, self.textbox_value.text(), iCRS, oCRS, se_min_max, search_data]
                     display(self, search_data)
                     self.btn_file_analysis.setEnabled(True)
                 else:
-                    QtGui.QMessageBox.information(self, "Important", 'No matching files have been found')
+                    gf.messageBox(self, "Important", 'No matching files have been found')
             else:
-                QtGui.QMessageBox.information(self, "Error", 'No arguments for search')
+                gf.messageBox(self, "Error", 'No arguments for search')
         else:
-            QtGui.QMessageBox.information(self, "Important", 'No files found in given directory')
+            gf.messageBox(self, "Important", 'No files found in given directory')
             
         self.running = False                    # updating flags
         self.flagStop = False
@@ -529,14 +527,16 @@ def scale_outset(self, iCoor, oCoor, sCoor):
         self.tbl_coor.setColumnCount(6)
         for i, oriCoor in enumerate(sCoor):                         # adding scaled coordinates to table
             for n, coordinate in enumerate(oriCoor):
-                newitem = QtGui.QTableWidgetItem(str(coordinate))
+                newitem = QtWidgets.QTableWidgetItem(str(coordinate))
                 self.tbl_coor.setItem(i, 4 + n, newitem)
         self.tbl_coor.setHorizontalHeaderLabels(['Input Longitude', 'Input Latitude', 'Output Longitude', 'Output Latitude', 'scaled Long', 'scaled Lat'])          # arranging headers
+        self.tbl_coor.horizontalHeader().setSectionResizeMode(4, QtWidgets.QHeaderView.Stretch)
+        self.tbl_coor.horizontalHeader().setSectionResizeMode(5, QtWidgets.QHeaderView.Stretch)
     elif self.sb_scale.value() == 100:      # removing scaled coordinates
         sCoor = []
         del_scale(self)
     else:
-        QtGui.QMessageBox.information(self, "Error", 'Please change scale and make sure you entered enough coordinates')
+        gf.messageBox(self, "Error", 'Please change scale and make sure you entered enough coordinates')
     return iCoor, oCoor, sCoor
 
 
@@ -706,3 +706,13 @@ def poly_check(border, borderList, building_list, se_min, se_max, toCheckList, m
         building_list.append(building_E.attrib['{http://www.opengis.net/gml}id'])
         se_min, se_max = new_min_max(min_max_list, se_min, se_max)
     return result, building_list, se_min, se_max
+
+
+
+
+def stretch_tbl_coor(self):
+    """function stretech first 4 columns of tbl_coor widget"""
+    self.tbl_coor.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+    self.tbl_coor.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+    self.tbl_coor.horizontalHeader().setSectionResizeMode(2, QtWidgets.QHeaderView.Stretch)
+    self.tbl_coor.horizontalHeader().setSectionResizeMode(3, QtWidgets.QHeaderView.Stretch)

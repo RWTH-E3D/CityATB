@@ -1,15 +1,17 @@
-from PyQt4 import QtGui, QtCore
+from PySide2 import QtWidgets, QtGui
 import os
 import time
 import pandas as pd
 import xml.etree.ElementTree as ET
 from io import StringIO
 
+import gui_functions as gf
+
 
 
 def folder(self):
     """func to select folder"""
-    self.output_foldername = str(QtGui.QFileDialog.getExistingDirectory(self, "Select Directory"))
+    self.output_foldername = str(QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory"))
     if self.output_foldername:
         self.textbox_output_folder.setText(self.output_foldername)
         self.btn_open_dir.setEnabled(True)
@@ -97,24 +99,24 @@ def save (self, data, validata, search_info, dirpath):
             if self.checkbox_validation.isChecked() and validata != []:
                 writer(self, validata, nameVali, header.vali, header.valiXml, 'validation', exppath)
             if self.checkbox_search.isChecked() and search_info != []:
-                writer(self, search_info[4], nameSearch, header.search, header.searchXml, 'search', exppath, search_info)
+                writer(self, search_info[5], nameSearch, header.search, header.searchXml, 'search', exppath, search_info)
             if self.checkbox_cgml.isChecked() and search_info != []:
                 cityGML_writer(self, search_info, nameCGML, exppath)
                 pass
             self.btn_open_dir.setEnabled(True)
         else:
-            self.message_file = QtGui.QMessageBox.information(self, "Important", "Please select a format!")
+            gf.messageBox(self, "Important", "Please select a format!")
     else:
-        self.message_file = QtGui.QMessageBox.information(self, "Important", "Please select data to export!")
+        gf.messageBox(self, "Important", "Please select data to export!")
 
 
 
 def cityGML_writer(self, search_info, name, exppath):
     """func for writing new CityGML file from list of buildings and files"""
     path = search_info [0]
-    results = search_info[4]
-    mininimum = [str(a) for a in search_info [3] [2] [0]]
-    maximum = [str(a) for a in search_info [3] [2] [1]]
+    results = search_info[5]
+    mininimum = [str(a) for a in search_info [4] [0]]
+    maximum = [str(a) for a in search_info [4] [1]]
     crs = search_info [3] [0]
 
     # warning for files with large area sizes
@@ -122,7 +124,7 @@ def cityGML_writer(self, search_info, name, exppath):
     numberOfBuildings = sum( [ len(listElem[1]) for listElem in results])
 
     if area > 1000000 or numberOfBuildings > 2000:
-        self.message_file = QtGui.QMessageBox.information(self, "Important", "Writing large file. This might take some time")
+        gf.messageBox(self, "Important", "Writing large file. This might take some time")
         print('the area is roughly:', round(area, 2), 'sqm\nthat is rougly', round(0.0001 * area, 2), 'ha')
         print('num of buildings', numberOfBuildings)
 
@@ -221,6 +223,7 @@ def writer(self, data, name, header, headerXml, form, exppath, additional = Fals
     if self.checkbox_text.isChecked():
         if form == 'search':
             complete = []
+            print(data)
             for file in data:
                 if file [1] != []:
                     for building in file [1]:

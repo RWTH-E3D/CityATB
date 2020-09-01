@@ -1,15 +1,18 @@
-from PyQt4 import QtGui, QtCore
+from PySide2 import QtWidgets, QtGui
 import os
 import glob
+
+import gui_functions as gf
 
 
 
 def select_gml(self):
     """func to select file"""
-    path = QtGui.QFileDialog.getOpenFileName(self, 'Select XML file')
+    tup = QtWidgets.QFileDialog.getOpenFileName(self, 'Select XML file', self.tr("*.gml;*.xml"))
+    path = tup[0]
     if path.endswith('.gml') or path.endswith('.xml'):
         self.textbox_gml.setText(path)
-        dirpath = os.path.dirname
+        dirpath = os.path.dirname(path)
         checkCheck(self, dirpath, path)
         self.btn_new_check.setEnabled(True)
         self.btn_one.setEnabled(True)
@@ -20,14 +23,14 @@ def select_gml(self):
         return path, dirpath
     else:
         self.textbox_gml.setText('')  
-        self.message_file = QtGui.QMessageBox.information(self, "Important", "Valid File not selected")
+        gf.messageBox(self, "Important", "Valid File not selected")
         return 0, 0
 
 
 
 def select_folder(self):
     """func to select folder"""
-    dirpath = QtGui.QFileDialog.getExistingDirectory(self, "Select Directory")
+    dirpath = QtWidgets.QFileDialog.getExistingDirectory(self, "Select Directory")
     if dirpath:
         self.btn_new_check.setEnabled(True)
         self.textbox_folder.setText(dirpath)
@@ -40,20 +43,21 @@ def select_folder(self):
         return dirpath
     else:
         self.textbox_folder.setText('')
-        self.message_folder = QtGui.QMessageBox.information(self, "Important", "Valid Folder not selected")
+        gf.messageBox(self, "Important", "Valid Folder not selected")
 
 
 
 def select_xsd(self, gmlpath, dirpath):
     """func to select .xsd"""
-    self.filename_xsd = QtGui.QFileDialog.getOpenFileName(self, 'Select XSD file')
+    tup = QtWidgets.QFileDialog.getOpenFileName(self, 'Select XSD file',  self.tr("*.xsd"))
+    self.filename_xsd = tup[0]
     if self.filename_xsd.endswith('.xsd'):
         self.textbox_xsd.setText(self.filename_xsd)
         checkCheck(self, dirpath, gmlpath)
         self.btn_new_check.setEnabled(True)
     else:
         self.textbox_xsd.setText('')  
-        self.message_file = QtGui.QMessageBox.information(self, "Important", "Valid File not selected")
+        gf.messageBox(self, "Important", "Valid File not selected")
 
 
 
@@ -102,10 +106,10 @@ def start_validation(self, xsd, button, buttonText, gmlpath, dirpath, app, valid
                         break
                     
             else:
-                self.message_file = QtGui.QMessageBox.information(self, "Important", 'no files have been found in given directory')
+                gf.messageBox(self, "Important", 'no files have been found in given directory')
                 
         else:
-            self.message_file = QtGui.QMessageBox.information(self, "Important", 'error, neither a directory or .gml/.xml path were given')
+            gf.messageBox(self, "Important", 'error, neither a directory or .gml/.xml path were given')
         
         for nbutton in self.buttons:                                        # enabeling all buttons again
             nbutton.setEnabled(True)
@@ -175,12 +179,10 @@ def display(self, validata):
     self.table.insertRow(rowPosition)
     for i in range(3):
         if i <= 1:
-            print(os.path.basename(validata[rowPosition] [i]))
-            newitem = QtGui.QTableWidgetItem(os.path.basename(validata[rowPosition] [i]))
+            newitem = QtWidgets.QTableWidgetItem(os.path.basename(validata[rowPosition] [i]))
             self.table.setItem(rowPosition, i, newitem)
         else:
-            print(validata[rowPosition] [i])
-            newitem = QtGui.QTableWidgetItem(validata[rowPosition] [i])
+            newitem = QtWidgets.QTableWidgetItem(validata[rowPosition] [i])
             self.table.setItem(rowPosition, i, newitem)
             if validata[rowPosition] [i] == 'Valid!':
                 self.table.item(rowPosition, 2).setBackground(QtGui.QColor(85, 190, 30))
@@ -196,9 +198,8 @@ def displaysetup(self, validata):
     self.table.setHorizontalHeaderLabels(header.vali)                                        # arranging headers
     self.table.verticalHeader().hide()
     self.table.horizontalHeader().hide()
-    self.table.horizontalHeader().setResizeMode(0, QtGui.QHeaderView.Stretch)               # adjusting resizing of table
-    for i in range(1, self.table.columnCount()):
-        self.table.horizontalHeader().setResizeMode(i, QtGui.QHeaderView.ResizeToContents)
+    for i in range(0, self.table.columnCount()):
+        self.table.horizontalHeader().setSectionResizeMode(i, QtWidgets.QHeaderView.Stretch)
     if validata != []:                                                                      # displaying already present data
         for i in range(len(validata)):
             display(self, validata)
