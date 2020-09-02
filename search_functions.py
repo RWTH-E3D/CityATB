@@ -1,4 +1,4 @@
-from PySide2 import QtWidgets, QtGui, QtCore
+from PySide2 import QtWidgets, QtCore
 import pyproj
 import math
 import time
@@ -430,8 +430,8 @@ def sorter(iCoor, oCoor, self, sort=False):
     # pop up for comparing coordinates, suggested vs input
     if sort == False:
         msg = str('CityGML ATB suggests an alternative order.\n' + ','.join([str(p) for p in pp]) + '\nDo you want to use the suggested order?')
-        choice = QtGui.QMessageBox.question(self, 'Attention!', msg, QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-        if choice == QtGui.QMessageBox.No:
+        choice = QtWidgets.QMessageBox.question(self, 'Attention!', msg, QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+        if choice == QtWidgets.QMessageBox.No:
             return iCoor, oCoor
     while self.tbl_coor.rowCount() > 0:                 # deleting old coordinates in table
         self.tbl_coor.removeRow(0)

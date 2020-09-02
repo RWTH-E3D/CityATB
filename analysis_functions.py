@@ -40,8 +40,8 @@ def select_folder(self):
         self.btn_select_file.setEnabled(False)
         return path
     else:
-        self.textbox_gml_folder.setText('')                                                                 # resetting textbox for path
-        self.message_folder = QtGui.QMessageBox.information(self, 'Important', 'Valid Folder not selected') # message-box informing about unsuccessful selection
+        self.textbox_gml_folder.setText('')                                                             # resetting textbox for path
+        gf.messageBox(self, 'Important', 'Valid Folder not selected')                                   # message-box informing about unsuccessful selection
     return ''
 
 
@@ -86,16 +86,16 @@ def run_analysis(self, gmlpath, dirpath, pypath, app):
             fileNames = glob.glob(os.path.join(zippath, '*.gml'))                               # searching for .gml files in folder
             fileNames.extend(glob.glob(os.path.join(dirpath, '*.xml')))                         # searching for .xml files in folder
             data = []                                                                           # creating empty array for analysis resutls
-            choice = QtGui.QMessageBox.question(self, '', "Do you want to extract the zipped files?",
-                                                QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
-            if choice == QtGui.QMessageBox.Yes:                                                 # if user wants to keep extracted files
+            choice = QtWidgets.QMessageBox.question(self, '', "Do you want to extract the zipped files?",
+                                                QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
+            if choice == QtWidgets.QMessageBox.Yes:                                                 # if user wants to keep extracted files
                 try:
                     os.mkdir(gmlpath.replace('.zip',''))                                        # creating new directory, in the same directory as the file, with the same name as the file
                 except:
                     gf.messageBox(self, 'Warning!', 'Error creating directory')
             for number, fileName in enumerate(fileNames):                                       # looping through all .gml and .xml files
                 data.append(analysis(fileName))                                                 # calling analysis function
-                if choice == QtGui.QMessageBox.Yes:                                             # if user wants to keep extracted files
+                if choice == QtWidgets.QMessageBox.Yes:                                             # if user wants to keep extracted files
                     try:                                                                        # try moving files to new directory
                         shutil.move(fileName, os.path.join(gmlpath.replace('.zip',''),
                                                            os.path.basename(fileName)))   

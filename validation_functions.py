@@ -70,7 +70,7 @@ def progress(self, max):
 
 
 def start_validation(self, xsd, button, buttonText, gmlpath, dirpath, app, validata, xsd_help, validationFilenames):
-    """intizializing analysis"""
+    """intizializing validation"""
     if self.running == False:
         self.running = True                                                                         # updating flag
         names = []                                                                                  # for displaying schema names in window title
