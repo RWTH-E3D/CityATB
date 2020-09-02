@@ -97,26 +97,26 @@ class mainWindow(QtWidgets.QWidget):
         self.btn_search_building = QtWidgets.QPushButton('Search buildings')
         self.uGrid.addWidget(self.btn_search_building, 0, 0, 1, 2)
 
-        self.lbl_search = QtWidgets.QLabel("     Search for values by coordinates or for\n     value(s)(sep = '&')\n")
+        self.lbl_search = QtWidgets.QLabel("      Search for values by coordinates\n      or for value(s)(sep = '&')\n")
         self.uGrid.addWidget(self.lbl_search, 2, 0, 1, 2)
 
         self.btn_convert = QtWidgets.QPushButton('Convert files')
         self.uGrid.addWidget(self.btn_convert, 0, 2, 1, 2)
         self.btn_convert.setEnabled(False)
 
-        self.lbl_convert = QtWidgets.QLabel('      Change the version of CityGML files\n\n')
+        self.lbl_convert = QtWidgets.QLabel('      Change the version of \n      CityGML files\n')
         self.uGrid.addWidget(self.lbl_convert, 2, 2, 1, 2)
 
         self.btn_analysis = QtWidgets.QPushButton('Analyse files')
         self.uGrid.addWidget(self.btn_analysis, 4, 0, 1, 2)
 
-        self.lbl_analysis = QtWidgets.QLabel('      Analyse files or folders on version, LoD,\n     #ofB, # ofBP...\n')
+        self.lbl_analysis = QtWidgets.QLabel('      Analyse files or folders on \n      version, LoD, #ofB, # ofBP\n')
         self.uGrid.addWidget(self.lbl_analysis, 6, 0, 1, 2)
 
         self.btn_validation = QtWidgets.QPushButton('Validate files')
         self.uGrid.addWidget(self.btn_validation, 4, 2, 1, 2)
 
-        self.lbl_validation = QtWidgets.QLabel('      Validate .gml (and .xml) files according\n      to .xsd schemas\n')
+        self.lbl_validation = QtWidgets.QLabel('      Validate .gml (and .xml) files \n      according to .xsd schemas\n')
         self.uGrid.addWidget(self.lbl_validation, 6, 2, 1, 2)
 
         self.btn_about = QtWidgets.QPushButton('About the toolbox')
