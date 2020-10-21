@@ -82,7 +82,7 @@ class mainWindow(QtWidgets.QWidget):
         if sizer:
             posx, posy, width, height, sizefactor = gf.screenSizer(self, posx, posy, width, height, app)
             sizer = False
-        gf.windowSetup(self, posx, posy, width, height, pypath, 'CityATB - CityGML Analysis Toolbox')
+        gf.windowSetup(self, posx, posy, width, height, pypath, 'CityATB - CityGML Analysis Toolbox - version 0.2')
 
         self.vbox = QtWidgets.QVBoxLayout(self)
         self.setLayout(self.vbox)
