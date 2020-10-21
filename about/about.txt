@@ -13,8 +13,11 @@ www.e3d.rwth-aachen.de
 Mathieustr. 30
 52074 Aachen
 
+How to cite CityATB:
+CityATB (CGML ATB) : CityGML Analysis Toolbox for Energy Performance Simulations. Malhotra A., S. Raming, J. Frisch, C. van Treeck. IBPSA BauSIM 2020, September 2020, Graz.
 
-
+Link to the repository:
+https://gitlab.e3d.rwth-aachen.de/e3d-software-tools/cityatb/cityatb
 
 MIT License
 

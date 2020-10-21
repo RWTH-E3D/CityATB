@@ -46,14 +46,6 @@ def select_folder(self):
 
 
 
-def progress(self, max):
-    """func to update value of progressbar; 'max' is maximum value"""
-    while self.completed < max:
-        self.completed += 0.0001                        # increasing value of progress
-        self.progress_bar.setValue(self.completed)      # displaying value of progress bar
-
-
-
 def tableClean(self):
     """func for cleaning table of all contents"""
     while self.table.rowCount() > 0:                    # deletes rows in table
@@ -76,7 +68,7 @@ def run_analysis(self, gmlpath, dirpath, pypath, app):
         if gmlpath.endswith('.gml') or gmlpath.endswith('.xml'):                                # if single .gml or .xml file has been selected
             fileNames = [gmlpath]                                                               # list of files / for determining results
             data = [analysis(gmlpath)]                                                          # running analysis
-            progress(self, 100)                                                                 # updating progressbar
+            gf.progress(self, 100)                                                              # updating progressbar
         # zip analysis
         elif gmlpath.endswith('.zip'):                                                          # if single .zip file has been selected
             dirpath = os.path.dirname(gmlpath)                                                  # getting direcotry of file
@@ -100,8 +92,8 @@ def run_analysis(self, gmlpath, dirpath, pypath, app):
                         shutil.move(fileName, os.path.join(gmlpath.replace('.zip',''),
                                                            os.path.basename(fileName)))   
                     except:
-                        gf.messageBox(self, 'Failed to move', str(fileName))                      # showing error to console
-                progress(self, (number + 1)/len(fileNames)*100)                                 # updating progress bar
+                        gf.messageBox(self, 'Failed to move', str(fileName))                    # showing error to console
+                gf.progress(self, (number + 1)/len(fileNames)*100)                              # updating progress bar
             shutil.rmtree(zippath)                                                              # deleting temporary directory
         # folder analysis
         elif dirpath:                                                                           # if directory has been selected
@@ -111,7 +103,7 @@ def run_analysis(self, gmlpath, dirpath, pypath, app):
                 app.processEvents()
                 if self.flagStop == False:                                                      # checks if task has been canceled
                     data.append(analysis(fileName))                                             # calling analysis function
-                    progress(self, (number + 1) / len(fileNames) * 100)                         # updating progress bar
+                    gf.progress(self, (number + 1) / len(fileNames) * 100)                      # updating progress bar
                 else:
                     print('exit, because of Flag')
                     break                                                                       # breaking out of loop   
@@ -199,7 +191,7 @@ def analysis (fileName):
         if nss['core'] == cl.CGML1.core:
             results["gml_version"] = 'CityGML 1.0'
         elif nss['core'] == cl.CGML2.core:
-            results["gml_version"] = 'CityGML "2.0'
+            results["gml_version"] = 'CityGML 2.0'
     except Exception as e:
         print(repr(e))
         return list(results.values())
@@ -274,7 +266,7 @@ def data_transfer(self, data, gmlpath, dirpath, search_info, analyseSearch, vali
         filenames = [a[0] for a in search_info[5]]
         for number, fileName in enumerate(filenames):                           # looping through all files from the 'search'-window
             data.append(analysis(os.path.join(dirpath, fileName)))              # running analysis for file and adding it to array
-            progress(self, (number + 1) / len(filenames) * 100)                 # updating progess bar
+            gf.progress(self, (number + 1) / len(filenames) * 100)              # updating progess bar
         analyseSearch = False                                                   # updating flag
         gf.messageBox(self, 'Analysis', 'Complete!')
         
@@ -283,7 +275,7 @@ def data_transfer(self, data, gmlpath, dirpath, search_info, analyseSearch, vali
         data = []                                                               # creating empty array for analysis results
         for number, fileName in enumerate(validationFilenames):                 # looping through all validated files
             data.append(analysis(os.path.join(dirpath, fileName)))              # running analysis for file and adding it to array
-            progress(self, (number + 1) / len(validationFilenames) * 100)       # updating progress bar
+            gf.progress(self, (number + 1) / len(validationFilenames) * 100)    # updating progress bar
         analyseValidation = False                                               # updating flag
         gf.messageBox(self, 'Analysis', 'Complete!')
         

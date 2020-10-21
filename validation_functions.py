@@ -61,16 +61,9 @@ def select_xsd(self, gmlpath, dirpath):
 
 
 
-def progress(self, max):
-    """setting up progress bar"""
-    while self.completed < max:
-        self.completed += 0.0001
-        self.progress_bar.setValue(self.completed)
-
-
 
 def start_validation(self, xsd, button, buttonText, gmlpath, dirpath, app, validata, xsd_help, validationFilenames):
-    """intizializing validation"""
+    """initializing validation"""
     if self.running == False:
         self.running = True                                                                         # updating flag
         names = []                                                                                  # for displaying schema names in window title
@@ -99,7 +92,7 @@ def start_validation(self, xsd, button, buttonText, gmlpath, dirpath, app, valid
                         for schema in xsd:
                             validata, xsd_help, validationFilenames = validate_file(
                                 self, fileName, schema, validata, xsd_help, validationFilenames)
-                        progress(self, (i + 1) / len(fileNames) * 100)
+                        gf.progress(self, (i + 1) / len(fileNames) * 100)
                         
                     else:
                         self.flagStop = False

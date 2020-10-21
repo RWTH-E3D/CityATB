@@ -1,11 +1,15 @@
+# import of libraries
 from PySide2 import QtWidgets, QtGui
 import os
 import time
 import pandas as pd
-import xml.etree.ElementTree as ET
 from io import StringIO
+import lxml.etree as ET
 
 import gui_functions as gf
+import classes as cl
+
+
 
 
 
@@ -111,119 +115,12 @@ def save (self, data, validata, search_info, dirpath):
 
 
 
-def cityGML_writer(self, search_info, name, exppath):
-    """func for writing new CityGML file from list of buildings and files"""
-    path = search_info [0]
-    results = search_info[5]
-    mininimum = [str(a) for a in search_info [4] [0]]
-    maximum = [str(a) for a in search_info [4] [1]]
-    crs = search_info [3] [0]
-
-    # warning for files with large area sizes
-    area = ((float(maximum[0])-float(mininimum[0]))**2 + (float(maximum[1])-float(mininimum[1]))**2) / 2
-    numberOfBuildings = sum( [ len(listElem[1]) for listElem in results])
-
-    if area > 1000000 or numberOfBuildings > 2000:
-        gf.messageBox(self, "Important", "Writing large file. This might take some time")
-        print('the area is roughly:', round(area, 2), 'sqm\nthat is rougly', round(0.0001 * area, 2), 'ha')
-        print('num of buildings', numberOfBuildings)
-
-    regSt2ff = [('', 'http://www.opengis.net/citygml/profiles/base/2.0'), ('core', 'http://www.opengis.net/citygml/2.0'), ('gen', 'http://www.opengis.net/citygml/generics/2.0'), ('grp', 'http://www.opengis.net/citygml/cityobjectgroup/2.0'),
-                ('app', 'http://www.opengis.net/citygml/appearance/2.0'), ('bldg', 'http://www.opengis.net/citygml/building/2.0'), ('gml', 'http://www.opengis.net/gml'), ('xal', 'urn:oasis:names:tc:ciq:xsdschema:xAL:2.0'),
-                ('xlink', 'http://www.w3.org/1999/xlink'), ('xsi', 'http://www.w3.org/2001/XMLSchema-instance')]
-
-    nucleus = []
-
-    ns = []
-
-    for filename, buildings in results:
-        f = open(os.path.join(path, filename), "r")
-        xml_data = f.read()
-        my_namespaces = [node for _, node in ET.iterparse(StringIO(xml_data), events=['start-ns'])]
-        ns.extend(my_namespaces)
-        for prefix, link in my_namespaces:
-            ET.register_namespace(prefix, link)
-        tree = ET.parse(os.path.join(path, filename))
-        root = tree.getroot()
-        for children in root.iter():
-            if (children.tag.split("}")[1]) == "cityObjectMember":
-                for child in children:
-                    if (child.tag.split("}")[1]) == "Building":
-                        if child.attrib['{http://www.opengis.net/gml}id'] in buildings:
-                            atrb2stay = []
-                            elemn = [ET.tostring(i, encoding= 'unicode') for i in children]
-                            [front, back] = elemn[0].split('>', 1)
-                            frunk = front.split()[1:]
-                            for bag in frunk:
-                                if bag.startswith('xmlns:'):
-                                    pAL = bag.split('xmlns:')[1]        # prefixAndLocation
-                                    p_a_l = pAL.split('=', 1)           # prefix_and_location
-                                    if (p_a_l[0], p_a_l[1][1:-1]) in my_namespaces: # if prefix with same location is already present -> skips
-                                        continue
-                                atrb2stay.append(bag)
-                            nucleus.append('  <core:cityObjectMember>')
-                            nucleus.append('    <bldg:Building ' + ' '.join(atrb2stay) + '>')
-                            nucleus.append(back[1::].rsplit('>', 1)[0] + '>')
-                            nucleus.append('  </core:cityObjectMember>')
-    
-    ns = list(set(ns))
-
-    prfxs = [i[0] for i in ns]                                          # list of all prefixes
-    dup = list(set([x for x in prfxs if prfxs.count(x) > 1]))           # list of all prefix duplicates
-    for dplct in dup:
-        prob = index_2d(ns, dplct) #getting all namespaces of prefix
-        longest = max([i[1] for i in prob], key=len)    # getting longest namespace
-        for link in prob:                               # removing all duplicated prefixes
-            ns.remove((dplct, link[1]))
-        ns.append((dplct, longest))                     # adding prefix with longest namespace
-
-    haupt = []
-
-    header1 = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<core:CityModel xmlns="http://www.opengis.net/citygml/profiles/base/2.0"\nxmlns:core="http://www.opengis.net/citygml/2.0"\nxmlns:gen="http://www.opengis.net/citygml/generics/2.0"\nxmlns:grp="http://www.opengis.net/citygml/cityobjectgroup/2.0"\nxmlns:app="http://www.opengis.net/citygml/appearance/2.0"\nxmlns:bldg="http://www.opengis.net/citygml/building/2.0"\nxmlns:gml="http://www.opengis.net/gml"\nxmlns:xal="urn:oasis:names:tc:ciq:xsdschema:xAL:2.0"\nxmlns:xlink="http://www.w3.org/1999/xlink"\nxmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"'
-    haupt.append(header1)
-
-    for prefix, link in ns:
-        existing  = [i[0] for i in regSt2ff]
-        if prefix in existing:
-            continue
-        else:
-            test = 'xmlns:' + prefix + '="' + link + '"'
-            haupt.append(test)
-
-    header2 = 'xsi:schemaLocation="http://www.opengis.net/citygml/2.0 http://schemas.opengis.net/citygml/2.0/cityGMLBase.xsd  http://www.opengis.net/citygml/appearance/2.0 http://schemas.opengis.net/citygml/appearance/2.0/appearance.xsd http://www.opengis.net/citygml/building/2.0 http://schemas.opengis.net/citygml/building/2.0/building.xsd http://www.opengis.net/citygml/generics/2.0 http://schemas.opengis.net/citygml/generics/2.0/generics.xsd">'
-    haupt.append(header2)
-
-
-    envelope = '  <gml:name>' + time.strftime('e3D_export_%Y_%m_%d') + '</gml:name>\n  <gml:boundedBy>\n    <gml:Envelope srsName="' + crs + '">\n      <gml:lowerCorner srsDimension="3">' + ' '.join(mininimum) + '</gml:lowerCorner>\n      <gml:upperCorner srsDimension="3">' + ' '.join(maximum) + '</gml:upperCorner>\n    </gml:Envelope>\n  </gml:boundedBy>'
-    haupt.append(envelope)
-
-    haupt.extend(nucleus)
-
-    closingTag = '</core:CityModel>'
-    haupt.append(closingTag)
-
-    # unifying intendation
-    string = '\n'.join(haupt)
-    import xml.dom.minidom
-    pretty_print = lambda data: '\n'.join([line for line in xml.dom.minidom.parseString(data).toprettyxml(indent=' '*4).split('\n') if line.strip()])
-    prettyxml = pretty_print(string)
-
-    with open(os.path.join(exppath, name + ".gml"), 'w', encoding="utf-8") as f:
-        f.write(prettyxml)
-        f.close()
-
-    self.list.addItem(os.path.join(exppath, name+".gml"))
-    progress(self)
-
-
-
 def writer(self, data, name, header, headerXml, form, exppath, additional = False):
     """func to write the export files"""
     # export to .txt
     if self.checkbox_text.isChecked():
         if form == 'search':
             complete = []
-            print(data)
             for file in data:
                 if file [1] != []:
                     for building in file [1]:
@@ -350,10 +247,148 @@ def progress(self):
 
 
 
-def index_2d(myList, v):
-    """func to get all namespaces of list ([[prefix, namepsace]..[,]]) and returning all namespaces of prefix v"""
-    res = []
-    for i, x in enumerate(myList):
-        if v in x:
-            res.append([i, x[1]])
-    return res
+def cityGML_writer(self, search_info, name, exppath):
+    """to write new CityGML file with name 'name' and dir 'exppath'"""
+    
+    # getting info from search_info
+    path = search_info [0]
+    results = search_info[5]
+    minimum = [str(a) for a in search_info [4] [0]]
+    maximum = [str(a) for a in search_info [4] [1]]
+    crs = search_info [3] [0]
+    print('crs from search:', crs)
+
+    # warning for files with large area sizes
+    area = ((float(maximum[0])-float(minimum[0]))**2 + (float(maximum[1])-float(minimum[1]))**2) / 2
+    numberOfBuildings = sum( [ len(listElem[1]) for listElem in results])
+
+    if area > 1000000 or numberOfBuildings > 2000:
+        gf.messageBox(self, "Important", "Writing large file. This might take some time")
+        print('the area is roughly:', round(area, 2), 'sqm\nthat is rougly', round(0.0001 * area, 2), 'ha')
+        print('num of buildings', numberOfBuildings)
+
+    # version of newly created file
+    version = 0
+
+    # buildings for new file
+    listOfBuildings = []
+
+    # test for namespaces and ADEs
+    namespacing = {}
+
+    for filename, buildings in results:
+        # parsing file, getting root and namespace map
+        tree = ET.parse(os.path.join(path, filename))
+        root = tree.getroot()
+        nss = root.nsmap
+        namespacing = {**nss, **namespacing}
+
+        # checking for version and intercompatibilty between input files
+        print('checking CGML version')
+        if version == 0:
+            if nss['core'] == cl.CGML1.core:
+                print(filename, 'probably 1')
+                nsClass = cl.CGML1
+                version = 1
+            elif nss['core'] == cl.CGML2.core:
+                print(filename, 'probably 2')
+                nsClass = cl.CGML2
+                version = 2
+            else:
+                print('unable to find matching core declaration')
+                print('skipping file ', filename)
+                continue
+        elif version == 1:
+            if nss['core'] == cl.CGML1.core:
+                print(filename, 'probably also 1')
+            elif nss['core'] == cl.CGML2.core:
+                print(filename, 'probably 2\nchanging to version 2')
+                
+                nsClass = cl.CGML2
+                version = 2
+            else:
+                print(filename, 'compatibility issue with file ')
+                continue
+        elif version == 2:
+            if nss['core'] == cl.CGML2.core:
+                print('probably also 2')
+            else:
+                print('compatibility issue with file ', filename)
+                continue
+
+        # finding gml envelope with srs declaration and bounding coordinates
+        envelope_E = root.find('.//gml:Envelope', namespaces= nss)
+        if envelope_E != None:
+            # new srs
+            ncrs = envelope_E.attrib['srsName']
+            if crs == '':
+                crs = ncrs
+                print('set new srs to', crs, '\nfrom', filename)
+            elif ncrs == crs:
+                print('same srs in', filename)
+                pass
+            elif ncrs.split(':')[3].split('*')[0] == crs:
+                print('same srs split in ', filename)
+                pass
+            else:
+                print('no matching srs\nskipping file ', filename)
+                pass
+
+        else:
+            print('/nenvelope not found\nskipping file ', filename)
+            ### here maybe question to continue or abort
+            continue
+
+        ### here checking and then adding building
+        cityObjectMembers = root.findall('core:cityObjectMember', namespaces=nss)
+        for cityObjectMember_E in cityObjectMembers:
+            building_E = cityObjectMember_E.find('bldg:Building', nss)
+            if building_E.attrib['{http://www.opengis.net/gml}id'] in buildings:
+                listOfBuildings.append(cityObjectMember_E)
+
+    # creating new namespacemap with default namespaces and namespaces from files
+    newNSmap = {**nss, **{'core': nsClass.core, 'gen' : nsClass.gen, 'grp' : nsClass.grp, 'app': nsClass.app, 'bldg' : nsClass.bldg, 'gml': nsClass.gml,
+                          'xal' : nsClass.xal, 'xlink' : nsClass.xlink, 'xsi' : nsClass.xsi}}
+
+
+
+    # creating new root element
+    nroot = ET.Element(ET.QName(nsClass.core, 'CityModel'), nsmap= newNSmap)
+    
+    # creating name element
+    name_E = ET.SubElement(nroot, ET.QName(nsClass.gml, 'name'), nsmap={'gml': nsClass.gml})
+    name_E.text = name
+
+    # creating gml enevelope
+    if crs != '':
+        bound_E = ET.SubElement(nroot, ET.QName(nsClass.gml, 'boundedBy'))
+        envelope = ET.SubElement(bound_E, ET.QName(nsClass.gml, 'Envelope'), srsName= crs)
+        try:
+            lcorner = ET.SubElement(envelope, ET.QName(nsClass.gml, 'lowerCorner'), srsDimension= str(len(minimum)))
+            lcorner.text = ' '.join(map(str, minimum))
+            ucorner = ET.SubElement(envelope, ET.QName(nsClass.gml, 'upperCorner'), srsDimension= str(len(maximum)))
+            ucorner.text = ' '.join(map(str, maximum))
+        except:
+            print('error finding necessary coordinates for bounding box')
+    else:
+        print('error finding crs')
+
+    listOfBuildings.reverse()
+
+    # appending buildings to new root
+    for building in listOfBuildings:
+        nroot.insert(nroot.index(name_E)+2, building)
+        building.tail = None
+
+    # creating tree from elements
+    tree = ET.ElementTree(nroot)
+    
+
+    # writing file
+    print('writing file')
+    tree.write(os.path.join(exppath, name + ".gml"), pretty_print = True, xml_declaration=True, 
+                encoding='utf-8', standalone='yes', method="xml")
+    
+    self.list.addItem(os.path.join(exppath, name + ".gml"))
+    progress(self)
+    print('created new CityGML file')

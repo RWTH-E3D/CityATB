@@ -158,13 +158,6 @@ def new_search(self):
 
 
 
-def progress(self, max):
-    """increassing value of progress bar until max is reached"""
-    while self.completed < max:
-        self.completed += 0.0001
-        self.progress_bar.setValue(self.completed)
-
-
 
 def value(self, fileNames, factor, app, startvalue = 0):
     """searching for a value in fileNames"""
@@ -176,6 +169,19 @@ def value(self, fileNames, factor, app, startvalue = 0):
         se_max = [-math.inf, -math.inf, -math.inf]
         values = self.textbox_value.text().split('&')       # spliting content of QLineEdit by sepereator
 
+        tag_dict = {}
+        tag_check = True
+        # checking if element tag is present
+        for index, i in enumerate(values):
+            if '>' in i:
+                tag, values[index] = i.split('>', 1)
+                if '<' in tag:
+                    tag = tag.split('<', 1)[1]
+                else:
+                    pass
+                tag_dict[tag] = values[index]
+            else:
+                pass
 
         for i, file in enumerate(fileNames):
             app.processEvents()
@@ -197,11 +203,32 @@ def value(self, fileNames, factor, app, startvalue = 0):
                         bs = building_E.getiterator()
                         bs = [b.text for b in bs]
                         if set(values).issubset(set(bs)):                                               # checks values of elements contain searched for values
+                            # checking if tags need to be checked
+                            if tag_dict != {}:
+                                # tags need to be checked
+                                for tag in tag_dict:
+                                    results = building_E.findall('.//' + tag, namespace)
+                                    if sum([j.text == tag_dict[tag] for j in results]) > 0:
+                                        # at least one match of tag and text have been found
+                                        pass
+                                    else:
+                                        # not one match of tag and text have been found
+                                        tag_check = False
+                                        continue
+                                if tag_check == True:
+                                    # checking tags was successfull
+                                    pass
+                                else:
+                                    # checking tags was not successfull -> skipping building and not appending it
+                                    continue
+                            else:
+                                # no tags given so function can continue
+                                pass
                             afb.append(building_E.attrib['{http://www.opengis.net/gml}id'])
                             se_min, se_max = search_for_coordinates(building_E, namespace, se_min, se_max)
                             for BP in building_E.findall('./bldg:consistsOfBuildingPart', namespace):
                                 se_min, se_max = search_for_coordinates(BP, namespace, se_min, se_max, building_E)
-                progress(self, (i + 1) / noF * factor * 100 + startvalue)
+                gf.progress(self, (i + 1) / noF * factor * 100 + startvalue)
             else:
                 break
             if afb != []:
@@ -264,7 +291,7 @@ def coordinates(self, fileNames, factor, outputCoor, app, startvalue=0):
                         for BP_E in BPs_in_bldg:
                             building_list, se_min, se_max = search_element(border, outputCoor, building_list, se_min, se_max, BP_E, namespace, building_E)
 
-                progress(self, startvalue + (i + 1)/ noF * factor * 100)    # updating progressbar
+                gf.progress(self, startvalue + (i + 1)/ noF * factor * 100)         # updating progressbar
             else:
                 self.flagStop = False
                 break
@@ -348,7 +375,7 @@ def search(self, dirpath, inputCoor, outputCoor, scaledCoor, scale, app):
                             w[0] = os.path.join(dirpath, w[0])
                         search_data, se_min_max, crs = value(self, search_data, 0.5, app, 50)
                     else:
-                        progress(self, 100)
+                        gf.progress(self, 100)
                 elif self.textbox_value.text():                     # searching for value
                     fileNames = [[x, []] for x in fileNames]
                     search_data, se_min_max, crs = value(self, fileNames, 1, app)
@@ -403,7 +430,7 @@ def data_transfer(self, dirpath, iCoor, oCoor, CRS):
 
 
 
-def sorter(iCoor, oCoor, self, sort=False):
+def sorter(iCoor, oCoor, self, question=True):
     """sorting coordinates to avoid wrong order"""
     pp = oCoor.copy()
     cent = (sum([p[0] for p in pp])/len(pp), sum([p[1] for p in pp])/len(pp))   # compute centroid
@@ -428,7 +455,7 @@ def sorter(iCoor, oCoor, self, sort=False):
             if lang_r[i:i+len(oCoor)] == oCoor:
                 return iCoor, oCoor
     # pop up for comparing coordinates, suggested vs input
-    if sort == False:
+    if question == True:
         msg = str('CityGML ATB suggests an alternative order.\n' + ','.join([str(p) for p in pp]) + '\nDo you want to use the suggested order?')
         choice = QtWidgets.QMessageBox.question(self, 'Attention!', msg, QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No)
         if choice == QtWidgets.QMessageBox.No:
@@ -585,7 +612,7 @@ def two_p_to_square(self, iCoor, oCoor):
     oCoor = oCoor + [(x3, y3), (x4, y4)]
     
     # sorting coordinates
-    iCoor, oCoor = sorter(iCoor, oCoor, self, True)
+    iCoor, oCoor = sorter(iCoor, oCoor, self, False)
     
     return iCoor, oCoor
 
