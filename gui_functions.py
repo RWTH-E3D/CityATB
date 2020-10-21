@@ -72,3 +72,10 @@ def load_banner(self, path, sizefactor, banner_size=150):
         self.vbox.addWidget(self.banner)
     except:
         print('error finding banner picture')
+
+
+def progress(self, max):
+    """setting up progress bar"""
+    while self.completed < max:
+        self.completed += 0.0001
+        self.progress_bar.setValue(self.completed)

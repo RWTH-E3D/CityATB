@@ -8,4 +8,4 @@ valiXml = ['schemaName', 'valid', 'error']
 search = ['filename', 'building']
 searchXml = ['building']
 
-converison = ['Filename', 'Status']
+conversion = ['Filename', 'Status']

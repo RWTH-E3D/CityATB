@@ -16,7 +16,7 @@ Mathieustr. 30
 52074 Aachen
 """
 
-# import of libaries
+# import of libraries
 import os
 import sys
 import PySide2
@@ -29,8 +29,10 @@ import analysis_functions as af
 import search_functions as sf
 import validation_functions as vf
 import save_functions as save_f
+import conversion_functions as cf
 
 
+# setting enviroment variable for PySide2
 dirname = os.path.dirname(PySide2.__file__)
 plugin_path = os.path.join(dirname, 'plugins', 'platforms')
 os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = plugin_path
@@ -82,7 +84,7 @@ class mainWindow(QtWidgets.QWidget):
         if sizer:
             posx, posy, width, height, sizefactor = gf.screenSizer(self, posx, posy, width, height, app)
             sizer = False
-        gf.windowSetup(self, posx, posy, width, height, pypath, 'CityATB - CityGML Analysis Toolbox')
+        gf.windowSetup(self, posx, posy, width, height, pypath, 'CityATB - CityGML Analysis Toolbox - version 0.3')
 
         self.vbox = QtWidgets.QVBoxLayout(self)
         self.setLayout(self.vbox)
@@ -92,7 +94,7 @@ class mainWindow(QtWidgets.QWidget):
         self.uGrid = QtWidgets.QGridLayout()
 
         # setup of buttons
-        button_height = 0.2
+        button_height = 0.15
 
         self.btn_search_building = QtWidgets.QPushButton('Search buildings')
         self.uGrid.addWidget(self.btn_search_building, 0, 0, 1, 2)
@@ -102,7 +104,6 @@ class mainWindow(QtWidgets.QWidget):
 
         self.btn_convert = QtWidgets.QPushButton('Convert files')
         self.uGrid.addWidget(self.btn_convert, 0, 2, 1, 2)
-        self.btn_convert.setEnabled(False)
 
         self.lbl_convert = QtWidgets.QLabel('      Change the version of \n      CityGML files\n')
         self.uGrid.addWidget(self.lbl_convert, 2, 2, 1, 2)
@@ -142,6 +143,7 @@ class mainWindow(QtWidgets.QWidget):
 
         # binding buttons to functions
         self.btn_search_building.clicked.connect(self.open_search)
+        self.btn_convert.clicked.connect(self.open_convert)
         self.btn_analysis.clicked.connect(self.open_analysis)
         self.btn_validation.clicked.connect(self.open_validation)
         self.btn_about.clicked.connect(self.open_about)
@@ -151,6 +153,11 @@ class mainWindow(QtWidgets.QWidget):
         global posx, posy
         posx, posy = gf.dimensions(self)
         gf.next_window(self, search())
+
+    def open_convert(self):
+        global posx, posy
+        posx, posy = gf.dimensions(self)
+        gf.next_window(self, convert())
 
     def open_analysis(self):
         global posx, posy
@@ -386,6 +393,141 @@ class search(QtWidgets.QWidget):
 
 
 
+class convert(QtWidgets.QWidget):
+    def __init__(self):
+        #initiate the parent
+        super(convert,self).__init__()
+        self.initUI()
+
+    def initUI(self):
+        global posx, posy, width, height, sizefactor, sizer
+        gf.windowSetup(self, posx, posy, width, height, pypath, 'CityATB - Convert and combine datasets')
+
+        # setup of gui / layout
+        self.vbox = QtWidgets.QVBoxLayout()
+        self.setLayout(self.vbox)
+
+        # setup of header image
+        gf.load_banner(self, os.path.join(pypath, r'pictures\e3dHeader.png'), sizefactor)
+        
+        self.uGrid = QtWidgets.QGridLayout()
+
+        self.lGrid = QtWidgets.QGridLayout()
+
+        # setup of buttons
+        self.btn_select_gml = QtWidgets.QPushButton('Select a GML file', self)
+        self.uGrid.addWidget(self.btn_select_gml, 0, 0, 1, 1)
+                
+        self.textbox_gml = QtWidgets.QLineEdit('')
+        self.textbox_gml.setReadOnly(True)
+        self.textbox_gml.setPlaceholderText('.gml path')
+        self.uGrid.addWidget(self.textbox_gml, 0, 1, 1, 3)
+        
+        self.btn_select_folder = QtWidgets.QPushButton('Selecet a folder', self)
+        self.uGrid.addWidget(self.btn_select_folder, 1, 0, 1, 1)
+                
+        self.textbox_folder = QtWidgets.QLineEdit('')
+        self.textbox_folder.setReadOnly(True)
+        self.textbox_folder.setPlaceholderText('directory path')
+        self.uGrid.addWidget(self.textbox_folder, 1, 1, 1, 3)
+        
+        self.btn_select_exppath = QtWidgets.QPushButton('Selecet a export folder', self)
+        self.uGrid.addWidget(self.btn_select_exppath, 2, 0, 1, 1)
+                
+        self.textbox_exppath = QtWidgets.QLineEdit('')
+        self.textbox_exppath.setReadOnly(True)
+        self.textbox_exppath.setPlaceholderText('export path')
+        self.uGrid.addWidget(self.textbox_exppath, 2, 1, 1, 3)
+        
+        self.btn_convert = QtWidgets.QPushButton("Start conversion",self)
+        self.uGrid.addWidget(self.btn_convert, 3, 0, 1, 1)
+        self.btn_convert.setEnabled(False)
+        
+        self.progress_bar = QtWidgets.QProgressBar(self)
+        self.uGrid.addWidget(self.progress_bar, 3, 1, 2, 3)
+        self.progress_bar.setValue(0)
+
+        self.btn_combine = QtWidgets.QPushButton("Start combining",self)
+        self.uGrid.addWidget(self.btn_combine, 4, 0, 1, 1)
+        self.btn_combine.setEnabled(False)
+        
+        self.table = QtWidgets.QTableWidget(self)
+        self.uGrid.addWidget(self.table, 5, 0, 1, 4)
+        self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
+        
+        self.vbox.addLayout(self.uGrid)
+
+
+        self.btn_new_check = QtWidgets.QPushButton("Reset window",self)
+        self.lGrid.addWidget(self.btn_new_check, 1, 0, 1, 3)
+        self.btn_new_check.setEnabled(False)
+        
+        self.btn_analyse = QtWidgets.QPushButton("Analyse files",self)
+        self.lGrid.addWidget(self.btn_analyse, 1, 3, 1, 3)
+        self.btn_analyse.setEnabled(False)
+        
+        self.btn_save = QtWidgets.QPushButton("Save results", self)
+        self.lGrid.addWidget(self.btn_save, 1, 6, 1, 3)
+        self.btn_save.setEnabled(False)
+        
+        self.btn_main_window = QtWidgets.QPushButton("Main Window",self)
+        self.lGrid.addWidget(self.btn_main_window, 1, 9, 1, 3)
+        
+        self.vbox.addLayout(self.lGrid)
+
+        self.btn_select_gml.clicked.connect(self.func_select_file)
+        self.btn_select_folder.clicked.connect(self.func_select_folder)
+        self.btn_select_exppath.clicked.connect(self.func_select_exppath)
+        self.btn_convert.clicked.connect(self.func_start_conversion)
+        self.btn_combine.clicked.connect(self.func_start_combining)
+        self.btn_new_check.clicked.connect(self.reset_window)
+        self.btn_main_window.clicked.connect(self.open_mainWindow)
+
+        self.running = False
+        self.exppath = ''
+
+
+        cf.data_transfer(self, gmlpath, dirpath)
+        cf.displaysetup(self)
+
+
+
+    def func_select_file(self):
+        global gmlpath, dirpath
+        gmlpath, dirpath = cf.select_gml(self)
+
+    def func_select_folder(self):
+        global dirpath
+        dirpath = cf.select_folder(self)
+
+    def func_select_exppath(self):
+        cf.select_exppath(self)
+
+    def func_start_conversion(self):
+        title, msg = cf.start_conversion(self, gmlpath, dirpath, app)
+        gf.messageBox(self, title, msg)
+
+    def func_start_combining(self):
+        title, msg = cf.combine_files(self, dirpath, app)
+        gf.messageBox(self, title, msg)
+        
+
+    def reset_window(self):
+        global gmlpath, dirpath
+        gmlpath = ''
+        dirpath = ''
+        self.exppath = ''
+        gf.next_window(self, convert())
+
+
+    def open_mainWindow(self):
+        global posx, posy
+        posx, posy = gf.dimensions(self)
+        gf.next_window(self, mainWindow())
+
+
+
+
 class analysis(QtWidgets.QWidget):
     def __init__(self):
         #initiate the parent
@@ -447,13 +589,13 @@ class analysis(QtWidgets.QWidget):
         self.btn_validation = QtWidgets.QPushButton('Validation',self)                                  # btn to jump to 'validation' window
         self.lGrid.addWidget(self.btn_validation, 1, 3, 1, 3)
     
-        self.btn_about = QtWidgets.QPushButton('About',self)                                            # btn to jump to 'about' window
-        self.lGrid.addWidget(self.btn_about, 2, 0, 1, 3)
+        self.btn_exit = QtWidgets.QPushButton('Exit',self)                                              # btn to jump to 'about' window
+        self.lGrid.addWidget(self.btn_exit, 2, 0, 1, 3)
         
         self.btn_mainWindow = QtWidgets.QPushButton('Main Window',self)                                 # btn to close programme
         self.lGrid.addWidget(self.btn_mainWindow, 2, 3, 1, 3)
 
-        self.vbox.addLayout(self.lGrid)                                                             # adding sub-layout to main-layout
+        self.vbox.addLayout(self.lGrid)                                                                 # adding sub-layout to main-layout
 
         # en/disabling buttons
         self.btn_save.setEnabled(False)
@@ -468,7 +610,7 @@ class analysis(QtWidgets.QWidget):
         self.btn_save.clicked.connect(self.open_save)
         self.btn_search.clicked.connect(self.open_search)
         self.btn_validation.clicked.connect(self.open_vali)
-        self.btn_about.clicked.connect(self.open_about)
+        self.btn_exit.clicked.connect(self.func_exit)
         self.btn_mainWindow.clicked.connect(self.open_mainWindow)
 
         self.running = False                                            # flag displaying if analysis is running
@@ -515,10 +657,8 @@ class analysis(QtWidgets.QWidget):
         posx, posy = gf.dimensions(self)
         gf.next_window(self, validation())
 
-    def open_about(self):
-        global posx, posy
-        posx, posy = gf.dimensions(self)
-        gf.next_window(self, about(), False)
+    def func_exit(self):
+        gf.close_application(self)
     
     def open_mainWindow(self):
         global posx, posy
@@ -539,8 +679,11 @@ class validation(QtWidgets.QWidget):
         gf.windowSetup(self, posx, posy, width, height, pypath, 'CityATB - Schema specific validation')
 
         # setup of gui / layout
-        self.vbox_validation = QtWidgets.QVBoxLayout()
-        self.setLayout(self.vbox_validation) 
+        self.vbox = QtWidgets.QVBoxLayout()
+        self.setLayout(self.vbox) 
+
+        # setup of header image
+        gf.load_banner(self, os.path.join(pypath, r'pictures\e3dHeader.png'), sizefactor)
         
         self.uGrid = QtWidgets.QGridLayout()
 
@@ -555,7 +698,7 @@ class validation(QtWidgets.QWidget):
         self.textbox_gml.setPlaceholderText('.gml path')
         self.uGrid.addWidget(self.textbox_gml, 0, 1, 1, 3)
         
-        self.btn_select_folder = QtWidgets.QPushButton('Selecet a folder', self)
+        self.btn_select_folder = QtWidgets.QPushButton('Select a folder', self)
         self.uGrid.addWidget(self.btn_select_folder, 1, 0, 1, 1)
                 
         self.textbox_folder = QtWidgets.QLineEdit('')
@@ -563,7 +706,7 @@ class validation(QtWidgets.QWidget):
         self.textbox_folder.setPlaceholderText('directory path')
         self.uGrid.addWidget(self.textbox_folder, 1, 1, 1, 3)
         
-        self.btn_select_xsd = QtWidgets.QPushButton('Selecet an xsd schema', self)
+        self.btn_select_xsd = QtWidgets.QPushButton('Select a xsd schema', self)
         self.uGrid.addWidget(self.btn_select_xsd, 2, 0, 1, 1)
                  
         self.textbox_xsd = QtWidgets.QLineEdit('')
@@ -583,7 +726,7 @@ class validation(QtWidgets.QWidget):
         self.uGrid.addWidget(self.table, 4, 0, 1, 4)
         self.table.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         
-        self.vbox_validation.addLayout(self.uGrid)
+        self.vbox.addLayout(self.uGrid)
 
 
         self.btn_one = QtWidgets.QPushButton("CityGML 1.0",self)
@@ -602,7 +745,7 @@ class validation(QtWidgets.QWidget):
         self.lGrid.addWidget(self.btn_oneandtwo, 0, 9, 1, 3)
         self.btn_oneandtwo.setEnabled(False)
         
-        self.btn_new_check = QtWidgets.QPushButton("New check",self)
+        self.btn_new_check = QtWidgets.QPushButton("Reset window",self)
         self.lGrid.addWidget(self.btn_new_check, 1, 0, 1, 3)
         self.btn_new_check.setEnabled(False)
         
@@ -617,7 +760,7 @@ class validation(QtWidgets.QWidget):
         self.btn_main_window = QtWidgets.QPushButton("Main Window",self)
         self.lGrid.addWidget(self.btn_main_window, 1, 9, 1, 3)
         
-        self.vbox_validation.addLayout(self.lGrid)
+        self.vbox.addLayout(self.lGrid)
 
         # setting local variables
         self.filename_xsd = ''
@@ -732,6 +875,26 @@ class about(QtWidgets.QWidget):
         with open(os.path.join(pypath, 'about/about.txt'), 'r') as file:
             text = file.read()
         self.textwidget.setText(text)
+
+        self.lGrid = QtWidgets.QGridLayout()
+
+        self.btn_repo = QtWidgets.QPushButton('Open repository')
+        self.lGrid.addWidget(self.btn_repo, 0, 0, 1, 1)
+
+        self.btn_close = QtWidgets.QPushButton('Close')
+        self.lGrid.addWidget(self.btn_close, 0, 1, 1, 1)
+
+        self.vbox.addLayout(self.lGrid)
+
+        self.btn_repo.clicked.connect(self.open_repo)
+        self.btn_close.clicked.connect(self.close_about)
+
+
+    def open_repo(self):
+        os.startfile('https://gitlab.e3d.rwth-aachen.de/e3d-software-tools/cityatb/cityatb')
+
+    def close_about(self):
+        self.hide()
 
 
 

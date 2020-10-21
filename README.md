@@ -31,7 +31,7 @@ Therefore, by reducing the time and effort for the analysis of complex data mode
 
 ## Version
 
-The CityATB is currently being developed. Currently the CityATB is available in the version 0.2.
+The CityATB is currently being developed. Currently the CityATB is available in the version 0.3.
 
 
 ## How to use CityATB
@@ -44,7 +44,7 @@ Futhermore, the following external libraries/python packages are used in the dif
 2. numpy
 3. pandas
 4. pyproj
-5. Pyside2
+5. PySide2
 
 ### Installation
 
