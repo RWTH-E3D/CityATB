@@ -177,7 +177,7 @@ def start_conversion(self, gmlpath, dirpath, app):
 
 def convert_file(self, filename):
     """function to convert file to CityGML 2.0 and save to exppath"""
-    content = open(filename, 'r').read()
+    content = open(filename, 'r', encoding='utf-8').read()
     old = ['http://www.opengis.net/citygml/1.0', 'http://www.opengis.net/citygml/generics/1.0', 'http://www.opengis.net/citygml/cityobjectgroup/1.0', 'http://www.opengis.net/citygml/appearance/1.0', 'http://www.opengis.net/citygml/building/1.0']
     new = ['http://www.opengis.net/citygml/2.0', 'http://www.opengis.net/citygml/generics/2.0', 'http://www.opengis.net/citygml/cityobjectgroup/2.0', 'http://www.opengis.net/citygml/appearance/2.0', 'http://www.opengis.net/citygml/building/2.0']
 
