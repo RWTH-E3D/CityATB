@@ -56,7 +56,7 @@ You are invited to contribute to the development of CityATB. You may report any 
 
 ## How to cite CityATB
 
-CityATB (CGML ATB) : CityGML Analysis Toolbox for Energy Performance Simulations. Avichal Malhotra, Simon Raming, Jérôme Frisch, Christoph van Treeck. IBPSA BauSIM 2020, September 2020, Graz.
+CityATB (CGML ATB) : CityGML Analysis Toolbox for Energy Performance Simulations. Avichal Malhotra, Simon Raming, Jérôme Frisch, Christoph van Treeck. IBPSA BauSIM 2020, September 2020, Graz [pdf](https://www.researchgate.net/publication/345318791_CITY_ATB_CITYGML_ANALYSIS_TOOLBOX_FOR_ENERGY_PERFORMANCE_SIMULATIONS).
 
 ## License
 
