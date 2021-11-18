@@ -23,13 +23,18 @@ import PySide2
 from PySide2 import QtWidgets, QtGui
 import time
 
+print(os.getcwd())
+
+
+# sys.path.append('../CityATB/')
+
 # import of functions
-import gui_functions as gf
-import analysis_functions as af
-import search_functions as sf
-import validation_functions as vf
-import save_functions as save_f
-import conversion_functions as cf
+import CityATB.gui_functions as gf
+import CityATB.analysis_functions as af
+import CityATB.search_functions as sf
+import CityATB.validation_functions as vf
+import CityATB.save_functions as save_f
+import CityATB.conversion_functions as cf
 
 
 # setting enviroment variable for PySide2
@@ -130,11 +135,11 @@ class mainWindow(QtWidgets.QWidget):
         listOfLabels = [self.lbl_search, self.lbl_convert, self.lbl_analysis, self.lbl_validation]
 
         for button in listOfButtons:
-            button.setStyleSheet("QPushButton {font-size: 16pt;}")
+            button.setStyleSheet("QPushButton {font-size: 12pt;}")
             button.setMinimumHeight(button_height * self.btn_search_building.height())
 
         for label in listOfLabels:
-            label.setStyleSheet("QLabel {font-size: 14pt;}")
+            label.setStyleSheet("QLabel {font-size: 12pt;}")
 
         self.vbox.addLayout(self.uGrid)
 
@@ -1048,6 +1053,7 @@ class saveResults(QtWidgets.QWidget):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     app.setStyle('Fusion')
+    app.setStyleSheet("QLabel{font-size: 8pt;} QPushButton{font-size: 8pt;} QRadioButton{font-size: 8pt;} QGroupBox{font-size: 8pt;} QComboBox{font-size: 8pt;} QLineEdit{font-size: 8pt;}")
     widget = mainWindow()
     widget.show()
     sys.exit(app.exec_())
