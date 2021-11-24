@@ -7,10 +7,10 @@ import time
 import math
 
 
-import CityATB.header
-import CityATB.classes as cl
-import CityATB.gui_functions as gf
-import CityATB.save_functions as save_f
+import header
+import classes as cl
+import gui_functions as gf
+import save_functions as save_f
 
 
 
@@ -73,8 +73,8 @@ def select_exppath(self):
 
 def displaysetup(self):
     """function for initial setup of table"""
-    self.table.setColumnCount(len(CityATB.header.conversion))
-    self.table.setHorizontalHeaderLabels(CityATB.header.conversion)
+    self.table.setColumnCount(len(header.conversion))
+    self.table.setHorizontalHeaderLabels(header.conversion)
     self.table.verticalHeader().hide()
     self.table.horizontalHeader().hide()
     for i in range(0, self.table.columnCount()):
@@ -87,7 +87,7 @@ def display(self, data):
     self.table.horizontalHeader().show()
     rowPos = self.table.rowCount()
     self.table.insertRow(rowPos)
-    for i in range(len(CityATB.header.conversion)):
+    for i in range(len(header.conversion)):
         if i < 1:
             text = os.path.basename(str(data[i]))
         else:
