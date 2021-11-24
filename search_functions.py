@@ -9,7 +9,7 @@ import matplotlib.path as mpl
 import numpy as np
 import csv
 
-import gui_functions as gf
+import CityATB.gui_functions as gf
  
 
 def select_folder(self):
