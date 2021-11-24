@@ -6,8 +6,8 @@ import pandas as pd
 from io import StringIO
 import lxml.etree as ET
 
-import CityATB.gui_functions as gf
-import CityATB.classes as cl
+import gui_functions as gf
+import classes as cl
 
 
 
