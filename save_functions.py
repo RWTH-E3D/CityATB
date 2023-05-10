@@ -331,7 +331,7 @@ def cityGML_writer(self, search_info, name, exppath):
                 print('same srs split in ', filename)
                 pass
             else:
-                print('no matching srs\nskipping file ', filename)
+                print('warn: no matching srs ', filename)
                 pass
 
         else:
@@ -343,8 +343,9 @@ def cityGML_writer(self, search_info, name, exppath):
         cityObjectMembers = root.findall('core:cityObjectMember', namespaces=nss)
         for cityObjectMember_E in cityObjectMembers:
             building_E = cityObjectMember_E.find('bldg:Building', nss)
-            if building_E.attrib['{http://www.opengis.net/gml}id'] in buildings:
-                listOfBuildings.append(cityObjectMember_E)
+            if building_E != None:
+                if building_E.attrib['{http://www.opengis.net/gml}id'] in buildings:
+                    listOfBuildings.append(cityObjectMember_E)
 
     # creating new namespacemap with default namespaces and namespaces from files
     newNSmap = {**nss, **{'core': nsClass.core, 'gen' : nsClass.gen, 'grp' : nsClass.grp, 'app': nsClass.app, 'bldg' : nsClass.bldg, 'gml': nsClass.gml,
