@@ -202,8 +202,10 @@ def analysis (fileName):
             results["ade"] = 'energyADE'
 
     name = root.find('gml:name', nss)
-    results["gml_name"] = name.text
-        
+    if name != None:
+        results["gml_name"] = name.text
+    else:
+        results["gml_name"] = 'N/D'
     # getting CRS
     try:
         envelope_E = root.find('./gml:boundedBy/gml:Envelope', nss)
