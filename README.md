@@ -38,13 +38,13 @@ The CityATB is currently being developed. Currently the CityATB is available in 
 
 ### Dependencies
 
-CityATB is currently being developed using Python 3.5+ and PySide2 python bindings. However in future, the developers will make it usable with other versions of python 3. 
+CityATB is currently being developed using Python 3.5+ and PySide6 python bindings. However in future, the developers will make it usable with other versions of python 3. 
 Futhermore, the following external libraries/python packages are used in the different functionalities of CityATB:
 1. matplotlib
 2. numpy
 3. pandas
 4. pyproj
-5. PySide2
+5. PySide6
 
 ### Installation
 

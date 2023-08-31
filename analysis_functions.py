@@ -1,10 +1,9 @@
 import os
 import glob
-from PySide2 import QtWidgets, QtGui
+from PySide6 import QtWidgets
 import zipfile
 import shutil
 import lxml.etree as ET
-import time
 
 import classes as cl
 import gui_functions as gf

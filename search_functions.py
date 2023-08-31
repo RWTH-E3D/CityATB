@@ -1,13 +1,11 @@
-from PySide2 import QtWidgets, QtCore
+from PySide6 import QtWidgets, QtCore
 import pyproj
 import math
-import time
 import glob
 import os
 import lxml.etree as ET
 import matplotlib.path as mpl
 import numpy as np
-import csv
 
 import gui_functions as gf
  

@@ -1,9 +1,8 @@
 # import of libraries
-from PySide2 import QtWidgets, QtGui
+from PySide6 import QtWidgets
 import os
 import time
 import pandas as pd
-from io import StringIO
 import lxml.etree as ET
 
 import gui_functions as gf

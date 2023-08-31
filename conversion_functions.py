@@ -1,16 +1,13 @@
-from PySide2 import QtWidgets, QtGui
+from PySide6 import QtWidgets, QtGui
 import os
 import glob
 import lxml.etree as ET
-from io import StringIO
-import time
 import math
 
 
 import header
 import classes as cl
 import gui_functions as gf
-import save_functions as save_f
 
 
 

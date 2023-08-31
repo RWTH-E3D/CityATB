@@ -19,8 +19,7 @@ Mathieustr. 30
 # import of libraries
 import os
 import sys
-import PySide2
-from PySide2 import QtWidgets, QtGui
+from PySide6 import QtWidgets
 import time
 
 # import of functions
@@ -30,12 +29,6 @@ import search_functions as sf
 import validation_functions as vf
 import save_functions as save_f
 import conversion_functions as cf
-
-
-# setting enviroment variable for PySide2
-dirname = os.path.dirname(PySide2.__file__)
-plugin_path = os.path.join(dirname, 'plugins', 'platforms')
-os.environ['QT_QPA_PLATFORM_PLUGIN_PATH'] = plugin_path
 
 
 # generall variables
@@ -85,12 +78,10 @@ class mainWindow(QtWidgets.QWidget):
             posx, posy, width, height, sizefactor = gf.screenSizer(self, posx, posy, width, height, app)
             sizer = False
         gf.windowSetup(self, posx, posy, width, height, pypath, 'CityATB - CityGML Analysis Toolbox - version 0.3')
-
         self.vbox = QtWidgets.QVBoxLayout(self)
         self.setLayout(self.vbox)
 
-        gf.load_banner(self, os.path.join(pypath, r'pictures\e3dHeader.png'), sizefactor)
-
+        gf.load_banner(self, os.path.join(pypath, r'pictures/e3dHeader.png'), sizefactor)
         self.uGrid = QtWidgets.QGridLayout()
 
         # setup of buttons
@@ -128,6 +119,7 @@ class mainWindow(QtWidgets.QWidget):
 
         listOfButtons = [self.btn_search_building, self.btn_convert, self.btn_analysis, self.btn_validation, self.btn_about, self.btn_exit]
         listOfLabels = [self.lbl_search, self.lbl_convert, self.lbl_analysis, self.lbl_validation]
+
 
         for button in listOfButtons:
             button.setStyleSheet("QPushButton {font-size: 16pt;}")
@@ -1050,4 +1042,4 @@ if __name__ == "__main__":
     app.setStyle('Fusion')
     widget = mainWindow()
     widget.show()
-    sys.exit(app.exec_())
+    sys.exit(app.exec())
